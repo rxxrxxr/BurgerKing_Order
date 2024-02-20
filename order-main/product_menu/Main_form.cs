@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using System.Data;
 
 namespace OrderForm
 {
@@ -18,29 +19,30 @@ namespace OrderForm
             InitializeComponent();
         }
         //----------------------- 각 메뉴(메인,사이드,드링크)페이지 열기 start ------------------------
-        private void Btn_Main_Menu_Click(object sender, EventArgs e)
+        private void Btn_Main_Menu_Click(object sender, EventArgs e) // 메인 메뉴 버튼을 누르면 버거 폼 불러오기
         {
-            // OrderForm.Main 네임스페이스의 Form1 클래스에 접근하여 인스턴스를 생성합니다.
+            // OrderForm.Main 네임스페이스의 Burger 클래스에 접근하여 인스턴스를 생성.
             OrderForm.product_menu.Burger burger = new OrderForm.product_menu.Burger(this);
 
-            // Form1을 패널에 추가하고 화면에 표시합니다.
+            // burger을 패널에 추가하고 화면에 표시.
             AddFormToPanel(burger);
         }
-        private void Btn_Side_Menu_Click(object sender, EventArgs e)
+        private void Btn_Side_Menu_Click(object sender, EventArgs e) // 메인 메뉴 버튼을 누르면 사이드 폼 불러오기
         {
             OrderForm.product_menu.Side side = new OrderForm.product_menu.Side(this);
             AddFormToPanel(side);
         }
-        private void Btn_Drink_Menu_Click(object sender, EventArgs e)
+        private void Btn_Drink_Menu_Click(object sender, EventArgs e) // 메인 메뉴 버튼을 누르면 드링크 폼 불러오기
         {
             OrderForm.product_menu.Drink drink = new OrderForm.product_menu.Drink(this);
             AddFormToPanel(drink);
         }
 
 
-        private void AddFormToPanel(Form form)
+        private void AddFormToPanel(Form form) // Form타입의 매개변수 form을 입력받는 메소드
         {
-            // 전달받은 폼을 패널에 추가하고 화면에 표시합니다.
+            // 전달받은 폼을 패널에 추가하고 화면에 표시.
+            // 
             form.TopLevel = false;
             form.FormBorderStyle = FormBorderStyle.None;
             form.Dock = DockStyle.Fill;
@@ -80,7 +82,7 @@ namespace OrderForm
                         existingItem.SubItems[1].Text = newQuantity.ToString(); // 증가된 quantity 설정
 
                         int currentPrice = int.Parse(existingItem.SubItems[2].Text); // 현재 price 가져오기
-                        
+
                     }
                     else
                     {
@@ -91,7 +93,7 @@ namespace OrderForm
                         Burger_Order_Listview.Items.Add(item);
                     }
                     Update_Total_Price();
-                    
+
 
                 }
                 connection.Close();
@@ -171,6 +173,77 @@ namespace OrderForm
         // ---------------------- 총 금액 계산 end ----------------------------------
 
 
+
+        // ---------------------- 오더테이블에 정보 넣기 start ------------------------
+
+        private void AddOrder()
+        {
+            connectionString = $"SERVER={server};DATABASE={database};UID={uid};PASSWORD={password};"; // DB 접속
+            connection = new MySqlConnection(connectionString);
+            connection.Open(); // DB 연결 시작
+            try
+            {
+                string query = $"INSERT INTO `order` (order_time) VALUES (NOW())";
+                MySqlCommand command = new MySqlCommand(query, connection);
+
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("주문을 처리하는 동안 오류가 발생했습니다: " + e.Message);
+            }
+            finally
+            {
+                if (connection != null && connection.State != ConnectionState.Closed)
+                {
+                    connection.Close();
+                }
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            AddOrder();
+        }
+        /*
+private void AddOrderToDatabase()
+{
+   try
+   {
+       connection.Open();
+
+       foreach (ListViewItem item in Burger_Order_Listview.Items)
+       {
+           string productName = item.SubItems[0].Text;
+           int quantity = int.Parse(item.SubItems[1].Text);
+           int price = int.Parse(item.SubItems[2].Text);
+
+           // 주문 정보를 order_item 테이블에 삽입하는 SQL 쿼리
+           string query = $"INSERT INTO order_item (quantity, price) VALUES ({quantity}, {price})";
+
+           MySqlCommand command = new MySqlCommand(query, connection);
+           command.ExecuteNonQuery();
+       }
+
+       MessageBox.Show("주문이 성공적으로 처리되었습니다.");
+
+       // 주문을 처리했으므로 ListView를 초기화하고 총 금액을 업데이트합니다.
+       Burger_Order_Listview.Items.Clear();
+       Update_Total_Price();
+   }
+   catch (Exception ex)
+   {
+       MessageBox.Show("주문을 처리하는 동안 오류가 발생했습니다: " + ex.Message);
+   }
+   finally
+   {
+       if (connection != null && connection.State != ConnectionState.Closed)
+       {
+           connection.Close();
+       }
+   }
+}
+*/
+        // ---------------------- 오더테이블에 정보 넣기 end ------------------------
 
 
     }
