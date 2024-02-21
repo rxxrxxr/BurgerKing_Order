@@ -38,7 +38,7 @@
             Btn_Side_Menu = new Button();
             label1 = new Label();
             Lb_Total_Price = new Label();
-            button5 = new Button();
+            Btn_Payment = new Button();
             panel1 = new Panel();
             Btn_Drink_Menu = new Button();
             SuspendLayout();
@@ -131,15 +131,15 @@
             Lb_Total_Price.TabIndex = 6;
             Lb_Total_Price.Text = "                 ";
             // 
-            // button5
+            // Btn_Payment
             // 
-            button5.Location = new Point(862, 410);
-            button5.Name = "button5";
-            button5.Size = new Size(100, 68);
-            button5.TabIndex = 7;
-            button5.Text = "결제";
-            button5.UseVisualStyleBackColor = true;
-            button5.Click += button5_Click;
+            Btn_Payment.Location = new Point(862, 410);
+            Btn_Payment.Name = "Btn_Payment";
+            Btn_Payment.Size = new Size(100, 68);
+            Btn_Payment.TabIndex = 7;
+            Btn_Payment.Text = "결제";
+            Btn_Payment.UseVisualStyleBackColor = true;
+            Btn_Payment.Click += Btn_Payment_Click;
             // 
             // panel1
             // 
@@ -166,7 +166,7 @@
             ClientSize = new Size(1067, 568);
             Controls.Add(Btn_Drink_Menu);
             Controls.Add(panel1);
-            Controls.Add(button5);
+            Controls.Add(Btn_Payment);
             Controls.Add(Lb_Total_Price);
             Controls.Add(label1);
             Controls.Add(Btn_Side_Menu);
@@ -190,7 +190,7 @@
         private Button Btn_Side_Menu;
         private Label label1;
         private Label Lb_Total_Price;
-        private Button button5;
+        private Button Btn_Payment;
         private Panel panel1;
         private Button Btn_Drink_Menu;
         public ListView Burger_Order_Listview;
