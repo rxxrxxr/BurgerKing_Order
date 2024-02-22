@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\BurgerKing_P\\order-main\\OrderForm.csproj": {}
+    "D:\\Student\\BurgerKing_P\\order-main\\OrderForm.csproj": {}
   },
   "projects": {
-    "D:\\BurgerKing_P\\order-main\\OrderForm.csproj": {
+    "D:\\Student\\BurgerKing_P\\order-main\\OrderForm.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\BurgerKing_P\\order-main\\OrderForm.csproj",
+        "projectUniqueName": "D:\\Student\\BurgerKing_P\\order-main\\OrderForm.csproj",
         "projectName": "OrderForm",
-        "projectPath": "D:\\BurgerKing_P\\order-main\\OrderForm.csproj",
+        "projectPath": "D:\\Student\\BurgerKing_P\\order-main\\OrderForm.csproj",
         "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-        "outputPath": "D:\\BurgerKing_P\\order-main\\obj\\",
+        "outputPath": "D:\\Student\\BurgerKing_P\\order-main\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
