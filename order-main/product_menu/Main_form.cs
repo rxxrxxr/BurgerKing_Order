@@ -1,25 +1,26 @@
-﻿using MySql.Data.MySqlClient;
-using Mysqlx.Crud;
-using System.Data;
+﻿using jjc;
+using MySql.Data.MySqlClient;
+using OrderForm.product_menu;
+using projecttest;
+
+
+using WindowsFormsApp3;
 
 namespace OrderForm
 {
     public partial class Main_form : Form
     {
-        string server = "192.168.0.38"; // HeidiSQL 서버 주소
-        string database = "BurgerKing"; // 데이터베이스 이름
-        string uid = "root"; // 사용자 이름
-        string password = "1234"; // 암호
-
-        string connectionString;
-        MySqlConnection connection;
-
-
+        private DB db;
         public Main_form()
         {
             InitializeComponent();
+
+            db = new DB("112.218.211.194", "burgerking", "root", "1234");
+
         }
-        //----------------------- 각 메뉴(메인,사이드,드링크)페이지 열기 start ------------------------
+
+        #region 각 메뉴(메인,사이드,드링크)페이지 열기
+
         private void Add_Form_To_Panel(Form form) // Form타입의 매개변수 form을 입력받는 메소드
         {
             // 전달받은 폼을 패널에 추가하고 화면에 표시.
@@ -48,53 +49,58 @@ namespace OrderForm
             OrderForm.product_menu.Drink drink = new OrderForm.product_menu.Drink(this);
             Add_Form_To_Panel(drink);
         }
-        //----------------------- 각 메뉴(메인,사이드,드링크)페이지 열기 end ------------------------
+        #endregion
 
 
 
-        // ---------------------- 메뉴 선택하면 listview에 보여주기 start ---------------------------
+        #region 메뉴 선택하면 listview에 보여주기
+
         public void Load_Products_calum(int menu_id)
         {
-            connectionString = $"SERVER={server};DATABASE={database};UID={uid};PASSWORD={password};"; // DB 접속
-            connection = new MySqlConnection(connectionString);
-            connection.Open(); // DB 연결 시작
             try
             {
-                string query = $"SELECT menu_name, stock, price FROM menu WHERE menu_id = {menu_id}";
-                MySqlCommand command = new MySqlCommand(query, connection);
-                MySqlDataReader reader = command.ExecuteReader();
-
-                // ListView에 데이터 추가
-                while (reader.Read())
+                if (db.OpenConnection())
                 {
-                    string productName = reader.GetString("menu_name");
-                    int productPrice = reader.GetInt32("price");
+                    Console.WriteLine("db접속된거");
+                    string query = $"SELECT m.menu_name, i.stock, m.price " +
+                                $"FROM menu m " +
+                                $"INNER JOIN inventory i ON m.menu_id = i.menu_id " +
+                                $"WHERE m.menu_id = '{menu_id}'";
+                    MySqlCommand command = new MySqlCommand(query, db.GetConnection());
+                    MySqlDataReader reader = command.ExecuteReader();
 
-                    ListViewItem existingItem = Burger_Order_Listview.FindItemWithText(productName);
-
-                    if (existingItem != null)
+                    // ListView에 데이터 추가
+                    while (reader.Read())
                     {
-                        // 이미 존재하는 제품인 경우 price와 quantity를 증가시킴
-                        int currentQuantity = int.Parse(existingItem.SubItems[1].Text); // 현재 quantity 가져오기
-                        int newQuantity = currentQuantity + 1; // quantity 증가
-                        existingItem.SubItems[1].Text = newQuantity.ToString(); // 증가된 quantity 설정
+                        string productName = reader.GetString("menu_name");
+                        int productPrice = reader.GetInt32("price");
 
-                        int currentPrice = int.Parse(existingItem.SubItems[2].Text); // 현재 price 가져오기
+                        ListViewItem existingItem = Burger_Order_Listview.FindItemWithText(productName);
 
+
+                        if (existingItem != null)
+                        {
+                            // 이미 존재하는 제품인 경우 price와 quantity를 증가시킴
+                            int currentQuantity = int.Parse(existingItem.SubItems[1].Text); // 현재 quantity 가져오기
+                            int newQuantity = currentQuantity + 1; // quantity 증가
+                            existingItem.SubItems[1].Text = newQuantity.ToString(); // 증가된 quantity 설정
+
+                            int currentPrice = int.Parse(existingItem.SubItems[2].Text); // 현재 price 가져오기
+
+                        }
+                        else
+                        {
+                            // 새로운 제품인 경우 ListView에 추가
+                            ListViewItem item = new ListViewItem(productName);
+                            item.SubItems.Add("1"); // quantity를 항상 1로 설정
+                            item.SubItems.Add(productPrice.ToString());
+                            Burger_Order_Listview.Items.Add(item);
+                        }
+                        Update_Total_Price();
                     }
-                    else
-                    {
-                        // 새로운 제품인 경우 ListView에 추가
-                        ListViewItem item = new ListViewItem(productName);
-                        item.SubItems.Add("1"); // quantity를 항상 1로 설정
-                        item.SubItems.Add(productPrice.ToString());
-                        Burger_Order_Listview.Items.Add(item);
-                    }
-                    Update_Total_Price();
 
-
+                    reader.Close();
                 }
-                connection.Close();
 
             }
             catch (Exception ex)
@@ -104,18 +110,19 @@ namespace OrderForm
             finally
             {
                 // DB 연결 닫기
-                if (connection != null && connection.State != System.Data.ConnectionState.Closed)
+                if (db != null)
                 {
-                    connection.Close();
+                    db.CloseConnection();
                 }
             }
 
         }
-        // ---------------------- 메뉴 선택하면 listview에 보여주기 start ---------------------------
+        #endregion
 
 
 
-        // ---------------------- listview 목록 삭제하기 start -----------------------------
+        #region listview 목록 삭제하기
+
         private void Delete_Selected_Menu()
         {
             if (Burger_Order_Listview.SelectedItems.Count > 0)
@@ -150,12 +157,13 @@ namespace OrderForm
         {
             Delete_Selected_Menu();
         }
-        // ---------------------- listview 목록 삭제하기 end -----------------------------
+        #endregion
 
 
 
-        // ---------------------- 총 금액 계산 start--------------------------------
-        private void Update_Total_Price()
+        #region 총 금액 계산
+
+        public void Update_Total_Price()
         {
             int totalPrice = 0;
 
@@ -167,122 +175,50 @@ namespace OrderForm
             }
 
             Lb_Total_Price.Text = totalPrice.ToString(); // 총 금액을 Label에 표시
+
         }
-        // ---------------------- 총 금액 계산 end ----------------------------------
-
-
-
-        // ---------------------- 오더테이블에 정보 넣기 start ------------------------
-        
-        private int Save_Order() // order 테이블에 order_id와 order_time을 저장하는 메서드
+        public string Lb_Total_Price_P
         {
-            int orderId = 0; // 초기 주문 ID 설정 0으로 초기화
-            try
-            {
-                string query = $"INSERT INTO `order` (order_time) VALUES (UTC_TIMESTAMP())"; // order 테이블에있는 order_time 컬럼에 NOW를 넣으면 현재시간이 등록된다
-                MySqlCommand command = new MySqlCommand(query, connection);
-                command.ExecuteNonQuery(); // 쿼리 실행문
-
-                // 새로 생성된 order_id 가져오기
-                query = "SELECT LAST_INSERT_ID()"; // MySQL에서 마지막으로 삽입된 자동 증가(primary key) 열의 값을 가져오는 쿼리
-                command = new MySqlCommand(query, connection);
-                // command.ExecuteScalar() 메서드를 통해 쿼리를 실행하고
-                // 그 결과로 반환된 첫 번째 행의 첫 번째 열의 값을 가져온다
-                // 그다음 Convert.ToInt32()를 사용하여 정수로 변환한 다음 orderId 변수에 넣는다.
-                // 새로운 주문이 들어왔을때 생성된 order_id 값을 가져오는데 사용
-                orderId = Convert.ToInt32(command.ExecuteScalar());
-            }
-            catch (MySqlException ex) // 예외처리
-            {
-                MessageBox.Show("주문을 처리하는 동안 오류가 발생했습니다: " + ex.Message);
-            }
-            return orderId;
-        }
-        private int Get_MenuId_By_Name(string menuName) // 메뉴 이름을 기반으로 메뉴 ID를 가져오는 메서드
-        {
-            int menuId = 0; // 초기 메뉴 ID 설정
-            try
-            {
-                // menu 테이블에서 listView에서 받아온 menuName와 똑같은 메뉴이름을 찾아
-                // menu_id를 특정한다
-                string query = $"SELECT menu_id FROM menu WHERE menu_name = '{menuName}'"; 
-                MySqlCommand command = new MySqlCommand(query, connection);
-                object result = command.ExecuteScalar();
-                // result가 null이 아닐경우(메뉴 이름을 찾은 경우)
-                // menuId에 int로 변환한 result를 넣는다
-                if (result != null)
-                {
-                    menuId = Convert.ToInt32(result);
-                }
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("메뉴 ID를 가져오는 동안 오류가 발생했습니다: " + ex.Message);
-            }
-            return menuId;
+            get { return Lb_Total_Price.Text; }
         }
 
-        // 주문된 메뉴 정보를 order_menu 테이블에 저장하는 메서드
-        private void Save_Order_Menu(int orderId, int menuId, int quantity)
-        {
-            try
-            {
-                // order_menu 테이블에 위에서 정의한 orderId, menuId, 새로 받을 quantity 정보를 저장한다
-                string query = $"INSERT INTO order_menu (order_id, menu_id, quantity) VALUES ({orderId}, {menuId}, {quantity})";
-                MySqlCommand command = new MySqlCommand(query, connection);
-                command.ExecuteNonQuery(); // 쿼리 실행
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("주문 메뉴를 추가하는 동안 오류가 발생했습니다: " + ex.Message);
-            }
-        }
+        #endregion
+
+
+
+        #region 결제버튼 누르면 Form2 호출하기
+
         private void Btn_Payment_Click(object sender, EventArgs e) // 결제 버튼 클릭 이벤트
         {
-            connection.Open();
-            try
-            {
-                int orderId = Save_Order(); // Save_Order 메서드를 호출한다
+            Form2 form2 = new Form2(this);
+            form2.ShowDialog();
 
-                if (orderId > 0) // 0보다 클때
-                {
-                    // 각 메뉴별로 주문된 수량과 메뉴 ID를 가져와서 order_menu 테이블에 저장
-                    foreach (ListViewItem item in Burger_Order_Listview.Items)
-                    {
-                        string menuName = item.SubItems[0].Text;
-                        int quantity = int.Parse(item.SubItems[1].Text);
+        }
+        #endregion
 
-                        // 메뉴 이름으로부터 메뉴 ID를 가져오는 메서드 호출
-                        int menuId = Get_MenuId_By_Name(menuName);
 
-                        // order_menu 테이블에 주문 정보 저장
-                        Save_Order_Menu(orderId, menuId, quantity);
-                    }
 
-                    MessageBox.Show("주문이 성공적으로 완료되었습니다.");
-                    // 주문 완료 후 ListView 초기화
-                    Burger_Order_Listview.Items.Clear();
-                    Update_Total_Price();
-                }
-                else
-                {
-                    MessageBox.Show("주문을 처리하는 동안 오류가 발생했습니다.");
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("데이터베이스 연결 오류: " + ex.Message);
-            }
-            finally
-            {
-                // DB 연결 닫기
-                if (connection != null && connection.State != System.Data.ConnectionState.Closed)
-                {
-                    connection.Close();
-                }
-            }
+        #region 매출관리 버튼, 재고관리 버튼 이벤트
+
+
+        private void 매출관리(object sender, EventArgs e)
+        {
+            sale_payment sale_Payment = new sale_payment();
+            sale_Payment.Show();
+            this.Hide();
         }
 
-        // ---------------------- 오더테이블에 정보 넣기 end ------------------------
+        private void 재고관리(object sender, EventArgs e)
+        {
+            Inventory inventory = new Inventory();
+            inventory.Show();
+            this.Hide();
+        }
+        #endregion
+
+        private void Main_form_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

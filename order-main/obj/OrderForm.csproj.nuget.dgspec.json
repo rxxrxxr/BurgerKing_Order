@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Student\\BurgerKing_P\\order-main\\OrderForm.csproj": {}
+    "C:\\Users\\user\\Downloads\\burgerking 완료\\order-main\\OrderForm.csproj": {}
   },
   "projects": {
-    "D:\\Student\\BurgerKing_P\\order-main\\OrderForm.csproj": {
+    "C:\\Users\\user\\Downloads\\burgerking 완료\\order-main\\OrderForm.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Student\\BurgerKing_P\\order-main\\OrderForm.csproj",
+        "projectUniqueName": "C:\\Users\\user\\Downloads\\burgerking 완료\\order-main\\OrderForm.csproj",
         "projectName": "OrderForm",
-        "projectPath": "D:\\Student\\BurgerKing_P\\order-main\\OrderForm.csproj",
+        "projectPath": "C:\\Users\\user\\Downloads\\burgerking 완료\\order-main\\OrderForm.csproj",
         "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-        "outputPath": "D:\\Student\\BurgerKing_P\\order-main\\obj\\",
+        "outputPath": "C:\\Users\\user\\Downloads\\burgerking 완료\\order-main\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -34,6 +34,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -64,7 +69,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
